@@ -8,38 +8,35 @@
     android:layout_height="match_parent"
     tools:context="com.example.rynel.github.MainActivity">
 
-    <Button
-        android:onClick="makingRestCalls"
-        android:id="@+id/btnNative"
+    <ImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="native_httpurlconnection"/>
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/tvId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/tvProfileRepoCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"/>
 
     <Button
-        android:id="@+id/btnOkhttpSync"
+        android:id="@+id/btnGoToRepo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="makingRestCalls"
-        android:text="/okhttp_sync"/>
+        android:textSize="20dp"
+        android:text="View Repositories"
+        android:onClick="goToRepos"/>
 
-    <Button
-        android:id="@+id/btnOkhttpAsync"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="makingRestCalls"
-        android:text="okhttp_async"/>
-
-    <Button
-        android:id="@+id/btnRetrofitSync"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="makingRestCalls"
-        android:text="retrofit_sync"/>
-
-    <Button
-        android:id="@+id/btnRetrofitAsync"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="makingRestCalls"
-        android:text="retrofit_async"/>
 </LinearLayout>

@@ -3,104 +3,94 @@ package com.example.rynel.github;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-
+import com.example.rynel.github.model.MyResponse;
+import com.google.gson.Gson;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.IOException;
-
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    private static final String BASEURL = "https://github.com/rgreen88/";
-    private static final String TAG = "MainActivity";
+    public static final String TAG = "MainActivityTag";
+    private OkHttpClient client;
+    private Request request;
+    String url = "https://api.github.com/users/rgreen88";
+    String loginName, avatarUrl, profileId, repoCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //OkHttp
 
-    }
+        client = new OkHttpClient();
 
-
-    public void makingRestCalls(View view) {
-
-        final OkHttpClient client = new OkHttpClient();
-        final Request request = new Request.Builder()
-                .url(BASEURL)
+        request = new Request.Builder()
+                .url(url)
                 .build();
 
-        switch (view.getId()) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String response = null;
 
-            case R.id.btnNative:
+                try {
+                    response = client.newCall(request)
+                            .execute()
+                            .body()
+                            .string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                MyHttpThread myHttpThread = new MyHttpThread(BASEURL);
-                Thread thread = new Thread(myHttpThread);
-                thread.start();
+                try { //JSON object holding values from github API
+                    JSONObject mainObject = new JSONObject( response );
 
-                break;
+                    loginName = mainObject.get("login").toString();
+                    avatarUrl = mainObject.get("avatar_url").toString();
+                    profileId = mainObject.get("id").toString();
+                    repoCount = mainObject.get("public_repos").toString();
 
-            case R.id.btnOkhttpAsync:
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Log.d(TAG, "onFailure" + e.toString());
-                    }
+                //repo call
+                url = "https://api.github.com/users/rgreen88/id";
+                request = new Request.Builder()
+                        .url( url )
+                        .build();
 
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Log.d(TAG, "onResponse: Thread ");
-                    }
-                });
+                try {//new response
+                    response = client.newCall(request)
+                            .execute()
+                            .body()
+                            .string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                break;
+                //Log.d(TAG, "MyParser: " + response);
+                try {
+                    JSONArray array = new JSONArray(response);
+                    JSONObject mainObject = (JSONObject) array.get(0);
+                    Log.d(TAG, "MyParser: " + mainObject.get( "name" ));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-            case R.id.btnOkhttpSync:
+                //serialize the response to objects with GSON
+                Gson gson = new Gson();
+                MyResponse[] myResponse = gson.fromJson( response, MyResponse[].class );
+                Log.d(TAG, "run: " + myResponse[0].getName() );
 
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        String response = null;
-                        try {
-                            response = client.newCall(request)
-                                    .execute()
-                                    .body()
-                                    .string();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d(TAG, "Response: " + response);
-                    }
-
-                }).start();
-
-                break;
-
-            case R.id.btnRetrofitAsync: //3rd party library
-
-                retrofit2.Call<MyResponse> myResponseCall = RetroFitHelper.getCall();
-
-                myResponseCall.enqueue(new retrofit2.Callback<MyResponse>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<MyResponse> call, retrofit2.Response<MyResponse> response) {
-                        Log.d(TAG, "onResponse: " + response.body().getName());
-
-                    }
-
-                    @Override
-                    public void onFailure(retrofit2.Call<MyResponse> call, Throwable t) {
-                        Log.d(TAG, "onFailure" + t.toString());
-
-                    }
-                });
-        }
+            }
+        }).start();
     }
 }
